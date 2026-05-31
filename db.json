@@ -1,0 +1,185 @@
+{
+  "users": [
+    {
+      "name": "Victor Neutzling",
+      "email": "vic@gmail.com",
+      "password": "123",
+      "id": "e-0vBAfG0RM"
+    },
+    {
+      "name": "luiz santos",
+      "email": "temp@gmail.com",
+      "password": "123",
+      "id": "5p-Z167Faz4"
+    }
+  ],
+  "communities": [
+    {
+      "name": "Logica de Programação",
+      "code": "LP001",
+      "professor": "Aron Santos",
+      "description": "UC de lógica de programação\n\nclassroom: google.classroom.com/123a",
+      "color": "#2e7d32",
+      "id": "PpNtMnXC3Nk"
+    },
+    {
+      "name": "Modelagem de software",
+      "code": "MS001",
+      "professor": "Rubem dos santos(?)",
+      "description": "essa é a comunidade de modelagem de software! - para mais informações entre em contato com o professor: rubem@gmail.com",
+      "color": "#7b1fa2",
+      "id": "U5Qqn9QjX10"
+    },
+    {
+      "name": "Redes de software",
+      "code": "RS001",
+      "professor": "João armenio neto",
+      "description": "essa é a comunidade de redes de software - contato do professor: (41) 99522-9589 email: joao.armenio@gmail.com",
+      "color": "#d32f2f",
+      "id": "HYwiiB20i3c"
+    }
+  ],
+  "posts": [
+    {
+      "userId": "e-0vBAfG0RM",
+      "communityId": "PpNtMnXC3Nk",
+      "type": "text",
+      "title": "link do classroom",
+      "content": "link do classroom: www.classroom.com/123",
+      "image": null,
+      "likes": [
+        "e-0vBAfG0RM",
+        "5p-Z167Faz4"
+      ],
+      "createdAt": "2026-05-31T14:56:11.677Z",
+      "id": "5jL52FPC7U0"
+    },
+    {
+      "userId": "e-0vBAfG0RM",
+      "communityId": "PpNtMnXC3Nk",
+      "type": "image",
+      "title": "post com imagem",
+      "content": "1",
+      "image": "https://assets-blog.hostgator.com.br/wp-content/uploads/2016/09/logica-de-programacao-blog.webp",
+      "likes": [],
+      "createdAt": "2026-05-31T14:58:38.228Z",
+      "id": "jw6n1vo5C3w"
+    },
+    {
+      "userId": "e-0vBAfG0RM",
+      "communityId": "PpNtMnXC3Nk",
+      "type": "image",
+      "title": "post só com imagem",
+      "content": "",
+      "image": "https://blog.estudesemfronteiras.com/wp-content/uploads/2024/09/algoritmo-e-logica-de-programacao.webp",
+      "likes": [],
+      "createdAt": "2026-05-31T14:59:32.643Z",
+      "id": "-vkCEV3p2gw"
+    },
+    {
+      "userId": "e-0vBAfG0RM",
+      "communityId": "U5Qqn9QjX10",
+      "type": "text",
+      "title": "criando post sem imagem",
+      "content": "lorem ipsum sit dolor amet",
+      "image": null,
+      "likes": [],
+      "createdAt": "2026-05-31T15:18:27.912Z",
+      "id": "JsIrYMDOeqs"
+    },
+    {
+      "userId": "e-0vBAfG0RM",
+      "communityId": "U5Qqn9QjX10",
+      "type": "image",
+      "title": "post com imagem E texto!",
+      "content": "123",
+      "image": "https://happy.com.br/wp-content/uploads/2020/10/fluxogrma-logica-de-progrmacao-para-criancas-683x1024.jpg",
+      "likes": [],
+      "createdAt": "2026-05-31T15:18:50.914Z",
+      "id": "OTLncrgfAds"
+    },
+    {
+      "userId": "e-0vBAfG0RM",
+      "communityId": "U5Qqn9QjX10",
+      "type": "image",
+      "title": "post apenas imagem",
+      "content": "",
+      "image": "https://hermes.dio.me/articles/cover/01f12b02-701e-4c94-a758-05f5855eaa11.jpg",
+      "likes": [
+        "5p-Z167Faz4"
+      ],
+      "createdAt": "2026-05-31T15:19:09.997Z",
+      "id": "hR4lQBEOfHc"
+    },
+    {
+      "userId": "5p-Z167Faz4",
+      "communityId": "U5Qqn9QjX10",
+      "type": "text",
+      "title": "post texto teste video",
+      "content": "esses é um teste de post de texto 123 a",
+      "image": null,
+      "likes": [],
+      "createdAt": "2026-05-31T15:26:37.476Z",
+      "id": "3qkl4p9WUvk"
+    },
+    {
+      "userId": "5p-Z167Faz4",
+      "communityId": "U5Qqn9QjX10",
+      "type": "image",
+      "title": "titulo post com imagem teste video",
+      "content": "",
+      "image": "https://horadecodar.com.br/wp-content/uploads/2023/04/Logica-de-programacao-scaled.jpg",
+      "likes": [],
+      "createdAt": "2026-05-31T15:27:03.226Z",
+      "id": "3P_YXnN3ZSU"
+    },
+    {
+      "userId": "5p-Z167Faz4",
+      "communityId": "HYwiiB20i3c",
+      "type": "text",
+      "title": "post redes",
+      "content": "123",
+      "image": null,
+      "likes": [],
+      "createdAt": "2026-05-31T15:28:29.763Z",
+      "id": "AX_edA9pynI"
+    }
+  ],
+  "comments": [
+    {
+      "postId": "5jL52FPC7U0",
+      "userId": "e-0vBAfG0RM",
+      "content": "deixando um comentario aqui",
+      "likes": [
+        "e-0vBAfG0RM"
+      ],
+      "createdAt": "2026-05-31T15:16:55.469Z",
+      "id": "1YHarP-CeIY"
+    },
+    {
+      "postId": "jw6n1vo5C3w",
+      "userId": "e-0vBAfG0RM",
+      "content": "outro comentario",
+      "likes": [],
+      "createdAt": "2026-05-31T15:17:16.585Z",
+      "id": "kW17wAr8euY"
+    },
+    {
+      "postId": "5jL52FPC7U0",
+      "userId": "5p-Z167Faz4",
+      "content": "outro comentario",
+      "likes": [],
+      "createdAt": "2026-05-31T15:25:33.002Z",
+      "id": "DGc7Aiz5Vv8"
+    },
+    {
+      "postId": "hR4lQBEOfHc",
+      "userId": "5p-Z167Faz4",
+      "content": "comentario tambem",
+      "likes": [],
+      "createdAt": "2026-05-31T15:25:48.864Z",
+      "id": "G3Cf9ULxguI"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
