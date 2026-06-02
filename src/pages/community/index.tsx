@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from "react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/axios";
+import logo from "../../assets/logouniforum.png";
+import { Search, Bell } from "lucide-react";
 
 import {
   Sheet,
@@ -53,12 +55,10 @@ type Comment = {
 
 export default function CommunityPage() {
   const { communityId } = useParams();
-
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [openCreatePost, setOpenCreatePost] = useState(false);
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [postType, setPostType] = useState<"text" | "image">("text");
@@ -66,31 +66,26 @@ export default function CommunityPage() {
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = String(user?.id);
+  const initials = user?.name?.charAt(0).toUpperCase() ?? "U";
 
   const logout = () => {
     localStorage.removeItem("user");
     navigate("/");
   };
+
   const { data: users = [] } = useQuery({
     queryKey: ["users"],
-    queryFn: async () => {
-      const res = await api.get("/users");
-      return res.data;
-    },
+    queryFn: async () => (await api.get("/users")).data,
   });
 
-  const getUserName = (userId: string) => {
-    const user = users.find((u: any) => String(u.id) === String(userId));
-
-    return user?.name || "Unknown User";
+  const getUserName = (uid: string) => {
+    const found = users.find((u: any) => String(u.id) === String(uid));
+    return found?.name || "Desconhecido";
   };
 
   const { data: community } = useQuery({
     queryKey: ["community", communityId],
-    queryFn: async () => {
-      const res = await api.get(`/communities/${communityId}`);
-      return res.data;
-    },
+    queryFn: async () => (await api.get(`/communities/${communityId}`)).data,
     enabled: !!communityId,
   });
 
@@ -98,30 +93,24 @@ export default function CommunityPage() {
 
   const { data: posts = [] } = useQuery({
     queryKey: ["community-posts", communityId],
-    queryFn: async () => {
-      const res = await api.get(`/posts?communityId=${communityId}`);
-      return res.data;
-    },
+    queryFn: async () => (await api.get(`/posts?communityId=${communityId}`)).data,
     enabled: !!communityId,
   });
 
   const { data: comments = [] } = useQuery({
     queryKey: ["comments"],
-    queryFn: async () => {
-      const res = await api.get("/comments");
-      return res.data;
-    },
+    queryFn: async () => (await api.get("/comments")).data,
   });
+
+  const getCommentsCount = (postId: string) =>
+    comments.filter((c: Comment) => c.postId === postId).length;
+
   const createPost = async () => {
     if (!title.trim()) return;
-
-    // For text posts, content is required
     if (postType === "text" && !content.trim()) return;
-
-    // For image posts, either content or image URL must exist
     if (postType === "image" && !imageUrl.trim()) return;
 
-    const newPost = {
+    await api.post("/posts", {
       userId: user.id,
       communityId,
       type: postType,
@@ -130,13 +119,9 @@ export default function CommunityPage() {
       image: postType === "image" ? imageUrl : null,
       likes: [],
       createdAt: new Date().toISOString(),
-    };
-
-    await api.post("/posts", newPost);
-
-    await queryClient.invalidateQueries({
-      queryKey: ["community-posts", communityId],
     });
+
+    await queryClient.invalidateQueries({ queryKey: ["community-posts", communityId] });
 
     setOpenCreatePost(false);
     setTitle("");
@@ -144,113 +129,113 @@ export default function CommunityPage() {
     setImageUrl("");
     setPostType("text");
   };
-  const getCommentsCount = (postId: string) =>
-    comments.filter((c: Comment) => c.postId === postId).length;
 
   const toggleLike = async (post: Post) => {
-    queryClient.setQueryData(
-      ["community-posts", communityId],
-      (old: Post[] = []) =>
-        old.map((p) => {
-          if (p.id !== post.id) return p;
-
-          const likes = p.likes || [];
-          const liked = likes.includes(userId);
-
-          return {
-            ...p,
-            likes: liked
-              ? likes.filter((id) => id !== userId)
-              : [...likes, userId],
-          };
-        }),
+    queryClient.setQueryData(["community-posts", communityId], (old: Post[] = []) =>
+      old.map((p) => {
+        if (p.id !== post.id) return p;
+        const likes = p.likes || [];
+        const liked = likes.includes(userId);
+        return {
+          ...p,
+          likes: liked ? likes.filter((id) => id !== userId) : [...likes, userId],
+        };
+      })
     );
 
     try {
       const currentLikes = post.likes || [];
       const liked = currentLikes.includes(userId);
-
       await api.patch(`/posts/${post.id}`, {
         likes: liked
           ? currentLikes.filter((id) => id !== userId)
           : [...currentLikes, userId],
       });
-
-      queryClient.invalidateQueries({
-        queryKey: ["community-posts", communityId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["community-posts", communityId] });
     } catch {
-      queryClient.invalidateQueries({
-        queryKey: ["community-posts", communityId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["community-posts", communityId] });
     }
   };
 
   return (
-    <Sheet sx={{ minHeight: "100vh", bgcolor: "background.body" }}>
+    <Sheet sx={{ minHeight: "100vh", bgcolor: "#f0f2f5" }}>
+
       {/* HEADER */}
       <Sheet
         sx={{
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
-          px: 2,
+          justifyContent: "space-between",
+          px: 3,
           py: 1.5,
           boxShadow: "sm",
           position: "sticky",
           top: 0,
           zIndex: 10,
-          bgcolor: "background.surface",
+          bgcolor: "#fff",
+          gap: 2,
         }}
       >
-        <Stack direction="row" spacing={1} alignItems="center">
+        {/* Logo + breadcrumb */}
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ flexShrink: 0 }}>
+          <img
+            src={logo}
+            alt="logo"
+            style={{ width: 36, height: 36, objectFit: "contain", cursor: "pointer" }}
+            onClick={() => navigate("/home")}
+          />
           <Typography
             level="h4"
-            sx={{
-              cursor: "pointer",
-              "&:hover": {
-                opacity: 0.8,
-              },
-            }}
+            sx={{ fontWeight: 800, letterSpacing: 1, cursor: "pointer", "& span": { color: "#0d9488" } }}
             onClick={() => navigate("/home")}
           >
-            Uniforum
+            UNI<span>FORUM</span>
           </Typography>
 
           {community && (
-            <Typography
-              level="title-lg"
-              sx={{
-                color: communityColor,
-                fontWeight: "lg",
-              }}
-            >
+            <Typography level="title-lg" sx={{ color: communityColor, fontWeight: "lg" }}>
               / {community.name}
             </Typography>
           )}
         </Stack>
 
-        <Dropdown>
-          <MenuButton
-            slots={{ root: Avatar }}
-            slotProps={{
-              root: { sx: { cursor: "pointer" } },
-            }}
-          >
-            {user?.name?.charAt(0) || "U"}
-          </MenuButton>
+        {/* Busca */}
+        <Input
+          placeholder="Buscar posts..."
+          startDecorator={<Search size={16} />}
+          sx={{ flex: 1, maxWidth: 480, borderRadius: "xl", bgcolor: "#f0f2f5", border: "none" }}
+        />
 
-          <Menu placement="bottom-end">
-            <MenuItem disabled>
-              Logged in as <b>{user?.name || "User"}</b>
-            </MenuItem>
+        {/* Ações */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <IconButton variant="plain" color="neutral">
+            <Bell size={20} />
+          </IconButton>
 
-            <MenuItem color="danger" onClick={logout}>
-              Logout
-            </MenuItem>
-          </Menu>
-        </Dropdown>
+          <Dropdown>
+            <MenuButton
+              slots={{ root: Avatar }}
+              slotProps={{
+                root: {
+                  sx: { cursor: "pointer", bgcolor: "#0d9488", color: "#fff", fontWeight: 700 },
+                },
+              }}
+            >
+              {initials}
+            </MenuButton>
+            <Menu placement="bottom-end">
+              <MenuItem disabled>
+                Olá,&nbsp;<b>{user?.name || "User"}</b>
+              </MenuItem>
+              <MenuItem color="danger" onClick={logout}>
+                Sair
+              </MenuItem>
+            </Menu>
+          </Dropdown>
+        </Stack>
       </Sheet>
+
+      {/* BANNER DA COMUNIDADE */}
       <Sheet
         sx={{
           height: 120,
@@ -259,14 +244,12 @@ export default function CommunityPage() {
           alignItems: "flex-end",
           px: 4,
           py: 3,
-          color: "white",
         }}
       >
         <Stack spacing={0.5}>
           <Typography level="h2" sx={{ color: "white" }}>
             {community?.name}
           </Typography>
-
           <Typography sx={{ color: "rgba(255,255,255,0.8)" }}>
             {community?.code}
           </Typography>
@@ -274,84 +257,66 @@ export default function CommunityPage() {
       </Sheet>
 
       {/* MAIN */}
-      {/* MAIN */}
       <Stack
         direction="row"
         spacing={2}
-        sx={{
-          maxWidth: 1200,
-          mx: "auto",
-          px: 2,
-          py: 3,
-          alignItems: "flex-start",
-        }}
+        sx={{ maxWidth: 1200, mx: "auto", px: 2, py: 3, alignItems: "flex-start" }}
       >
         {/* FEED */}
         <Stack spacing={2} sx={{ flex: 1 }}>
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            alignItems="center"
-            gap="16px"
-          >
-            <Typography level="body-sm">Want to contribute?</Typography>
-
+          <Stack direction="row" justifyContent="flex-end" alignItems="center" gap={2}>
+            <Typography level="body-sm">Quer contribuir?</Typography>
             <Button
               onClick={() => setOpenCreatePost(true)}
-              sx={{
-                bgcolor: communityColor,
-                "&:hover": {
-                  opacity: 0.9,
-                },
-              }}
+              sx={{ bgcolor: communityColor, "&:hover": { opacity: 0.9 } }}
             >
-              Create Post
+              Criar Post
             </Button>
           </Stack>
 
           <Divider />
 
           {[...posts].reverse().map((post: Post) => (
-            <Card key={post.id}>
+            <Card
+              key={post.id}
+              sx={{
+                borderRadius: "lg",
+                boxShadow: "sm",
+                transition: "box-shadow 0.2s",
+                "&:hover": { boxShadow: "md" },
+              }}
+            >
               <CardContent>
                 <div
                   onClick={() => navigate(`/post/${post.id}`)}
                   style={{ cursor: "pointer" }}
                 >
                   <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: 2,
-                    }}
+                    sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 }}
                   >
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                        fontSize: "24px",
-                      }}
-                    >
+                    <Typography sx={{ fontWeight: "bold", fontSize: "20px" }}>
                       {post.title}
                     </Typography>
-
-                    <Typography
-                      level="body-sm"
-                      sx={{
-                        color: "text.secondary",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
+                    <Typography level="body-sm" sx={{ color: "text.secondary", whiteSpace: "nowrap" }}>
                       criado por {getUserName(post.userId)}
                     </Typography>
                   </Box>
 
-                  <Typography level="body-sm" sx={{ mt: 1 }}>
+                  <Typography
+                    level="body-sm"
+                    sx={{
+                      mt: 1,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
                     {post.content}
                   </Typography>
 
                   {post.type === "image" && post.image && (
-                    <AspectRatio ratio="16/9" sx={{ mt: 2 }}>
+                    <AspectRatio ratio="16/9" sx={{ mt: 2, borderRadius: "md", overflow: "hidden" }}>
                       <img src={post.image} alt={post.title} />
                     </AspectRatio>
                   )}
@@ -360,39 +325,21 @@ export default function CommunityPage() {
                 <Stack
                   direction="row"
                   spacing={2}
-                  sx={{
-                    mt: 2,
-                    pt: 1,
-                    borderTop: "1px solid",
-                    borderColor: "divider",
-                  }}
+                  alignItems="center"
+                  sx={{ mt: 1.5, pt: 1, borderTop: "1px solid", borderColor: "divider" }}
                 >
-                  {/* LIKES */}
                   <Stack direction="row" spacing={0.5} alignItems="center">
                     <IconButton
                       size="sm"
                       variant={post.likes?.includes(userId) ? "soft" : "plain"}
-                      color={
-                        post.likes?.includes(userId) ? "primary" : "neutral"
-                      }
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleLike(post);
-                      }}
+                      color={post.likes?.includes(userId) ? "primary" : "neutral"}
+                      onClick={(e) => { e.stopPropagation(); toggleLike(post); }}
                     >
-                      {post.likes?.includes(userId) ? (
-                        <ThumbUpIcon />
-                      ) : (
-                        <ThumbUpOutlinedIcon />
-                      )}
+                      {post.likes?.includes(userId) ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />}
                     </IconButton>
-
-                    <Typography level="body-sm">
-                      {post.likes?.length || 0}
-                    </Typography>
+                    <Typography level="body-sm">{post.likes?.length || 0}</Typography>
                   </Stack>
 
-                  {/* COMMENTS */}
                   <Stack direction="row" spacing={0.5} alignItems="center">
                     <IconButton
                       size="sm"
@@ -401,23 +348,14 @@ export default function CommunityPage() {
                     >
                       <ChatBubbleOutlineIcon />
                     </IconButton>
-
-                    <Typography level="body-sm">
-                      {getCommentsCount(post.id)}
-                    </Typography>
+                    <Typography level="body-sm">{getCommentsCount(post.id)}</Typography>
                   </Stack>
                 </Stack>
               </CardContent>
             </Card>
           ))}
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              py: 2,
-            }}
-          >
+          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
             <Typography sx={{ color: "#717171" }}>Você já viu tudo.</Typography>
           </Box>
         </Stack>
@@ -427,21 +365,15 @@ export default function CommunityPage() {
           sx={{
             width: 300,
             p: 2,
-            borderRadius: "md",
+            borderRadius: "lg",
             boxShadow: "sm",
             height: "fit-content",
             position: "sticky",
             top: 80,
-            bgcolor: "background.surface",
+            bgcolor: "#fff",
           }}
         >
-          <Typography
-            level="title-md"
-            sx={{
-              color: communityColor,
-              fontWeight: "lg",
-            }}
-          >
+          <Typography level="title-md" sx={{ color: communityColor, fontWeight: "lg" }}>
             Sobre a comunidade
           </Typography>
 
@@ -449,91 +381,69 @@ export default function CommunityPage() {
 
           <Stack spacing={2}>
             <div>
-              <Typography level="body-xs" sx={{ opacity: 0.6 }}>
-                Professor
-              </Typography>
-
+              <Typography level="body-xs" sx={{ opacity: 0.6 }}>Professor</Typography>
               <Typography level="body-sm">{community?.professor}</Typography>
             </div>
-
             <div>
-              <Typography level="body-xs" sx={{ opacity: 0.6 }}>
-                Descrição
-              </Typography>
-
+              <Typography level="body-xs" sx={{ opacity: 0.6 }}>Descrição</Typography>
               <Typography level="body-sm">{community?.description}</Typography>
             </div>
-
             <div>
-              <Typography level="body-xs" sx={{ opacity: 0.6 }}>
-                Código
-              </Typography>
-
+              <Typography level="body-xs" sx={{ opacity: 0.6 }}>Código</Typography>
               <Typography level="body-sm">{community?.code}</Typography>
             </div>
           </Stack>
         </Sheet>
       </Stack>
-      <Modal open={openCreatePost} onClose={() => setOpenCreatePost(false)}>
-        <ModalDialog
-          sx={{
-            width: 600,
-            maxWidth: "95vw",
-          }}
-        >
-          <Typography level="h4">Create Post</Typography>
 
+      {/* MODAL CRIAR POST */}
+      <Modal open={openCreatePost} onClose={() => setOpenCreatePost(false)}>
+        <ModalDialog sx={{ width: 600, maxWidth: "95vw" }}>
+          <Typography level="h4">Criar Post</Typography>
           <Stack spacing={2} mt={1}>
             <FormControl>
-              <FormLabel>Post Type</FormLabel>
-
+              <FormLabel>Tipo</FormLabel>
               <Select
                 value={postType}
                 onChange={(_, value) => setPostType(value as "text" | "image")}
               >
-                <Option value="text">Text</Option>
-
-                <Option value="image">Image</Option>
+                <Option value="text">Texto</Option>
+                <Option value="image">Imagem</Option>
               </Select>
             </FormControl>
 
             <FormControl>
-              <FormLabel>Title</FormLabel>
-
+              <FormLabel>Título</FormLabel>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} />
             </FormControl>
 
             <FormControl>
-              <FormLabel>Content</FormLabel>
-
-              <Textarea
-                minRows={4}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-              />
+              <FormLabel>Conteúdo</FormLabel>
+              <Textarea minRows={4} value={content} onChange={(e) => setContent(e.target.value)} />
             </FormControl>
 
             {postType === "image" && (
               <FormControl>
-                <FormLabel>Image URL</FormLabel>
-
-                <Input
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                />
+                <FormLabel>URL da imagem</FormLabel>
+                <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
               </FormControl>
             )}
 
             <Stack direction="row" spacing={1} justifyContent="flex-end">
               <Button variant="plain" onClick={() => setOpenCreatePost(false)}>
-                Cancel
+                Cancelar
               </Button>
-
-              <Button onClick={createPost}>Post</Button>
+              <Button
+                onClick={createPost}
+                sx={{ bgcolor: communityColor, "&:hover": { opacity: 0.9 } }}
+              >
+                Publicar
+              </Button>
             </Stack>
           </Stack>
         </ModalDialog>
       </Modal>
+
     </Sheet>
   );
 }
