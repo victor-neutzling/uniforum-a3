@@ -74,8 +74,14 @@ export default function FrontPage() {
   const [search, setSearch] = useState("");
 
   const communityColors = [
-    "#1976d2", "#2e7d32", "#ed6c02", "#9c27b0",
-    "#d32f2f", "#0288d1", "#7b1fa2", "#455a64",
+    "#1976d2",
+    "#2e7d32",
+    "#ed6c02",
+    "#9c27b0",
+    "#d32f2f",
+    "#0288d1",
+    "#7b1fa2",
+    "#455a64",
   ];
   const [communityColor, setCommunityColor] = useState(communityColors[0]);
 
@@ -115,9 +121,10 @@ export default function FrontPage() {
 
   const filteredPosts = [...posts]
     .reverse()
-    .filter((p: Post) =>
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.content.toLowerCase().includes(search.toLowerCase())
+    .filter(
+      (p: Post) =>
+        p.title.toLowerCase().includes(search.toLowerCase()) ||
+        p.content.toLowerCase().includes(search.toLowerCase()),
     );
 
   const toggleLike = async (post: Post) => {
@@ -133,7 +140,7 @@ export default function FrontPage() {
             ? likes.filter((id) => id !== userId)
             : [...likes, userId],
         };
-      })
+      }),
     );
     try {
       const currentLikes = post.likes || [];
@@ -169,7 +176,6 @@ export default function FrontPage() {
 
   return (
     <Sheet sx={{ minHeight: "100vh", bgcolor: "#f0f2f5" }}>
-
       {/* ── HEADER ── */}
       <Sheet
         sx={{
@@ -201,7 +207,11 @@ export default function FrontPage() {
           />
           <Typography
             level="h4"
-            sx={{ fontWeight: 800, letterSpacing: 1, "& span": { color: "#0d9488" } }}
+            sx={{
+              fontWeight: 800,
+              letterSpacing: 1,
+              "& span": { color: "#0d9488" },
+            }}
           >
             UNI<span>FORUM</span>
           </Typography>
@@ -213,7 +223,13 @@ export default function FrontPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           startDecorator={<Search size={16} />}
-          sx={{ flex: 1, maxWidth: 480, borderRadius: "xl", bgcolor: "#f0f2f5", border: "none" }}
+          sx={{
+            flex: 1,
+            maxWidth: 480,
+            borderRadius: "xl",
+            bgcolor: "#f0f2f5",
+            border: "none",
+          }}
         />
 
         {/* Ações */}
@@ -227,7 +243,12 @@ export default function FrontPage() {
               slots={{ root: Avatar }}
               slotProps={{
                 root: {
-                  sx: { cursor: "pointer", bgcolor: "#0d9488", color: "#fff", fontWeight: 700 },
+                  sx: {
+                    cursor: "pointer",
+                    bgcolor: "#0d9488",
+                    color: "#fff",
+                    fontWeight: 700,
+                  },
                 },
               }}
             >
@@ -256,21 +277,6 @@ export default function FrontPage() {
       >
         {/* FEED */}
         <Stack spacing={2} sx={{ flex: 1 }}>
-
-          {/* Botão criar post */}
-          <Button
-            startDecorator={<Plus size={16} />}
-            onClick={() => navigate("/post/new")}
-            sx={{
-              bgcolor: "#0d9488",
-              "&:hover": { bgcolor: "#0f766e" },
-              borderRadius: "md",
-              fontWeight: 600,
-            }}
-          >
-            Criar post
-          </Button>
-
           {filteredPosts.map((post: Post) => {
             const community = getCommunity(post.communityId);
             const author = getAuthor(post.userId);
@@ -287,7 +293,6 @@ export default function FrontPage() {
                 }}
               >
                 <CardContent>
-
                   {/* Autor + comunidade */}
                   <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                     <Avatar
@@ -311,7 +316,9 @@ export default function FrontPage() {
                             color: community?.color || "#0d9488",
                             "&:hover": { textDecoration: "underline" },
                           }}
-                          onClick={() => navigate(`/community/${post.communityId}`)}
+                          onClick={() =>
+                            navigate(`/community/${post.communityId}`)
+                          }
                         >
                           {community?.name || "Comunidade"}
                         </Typography>
@@ -348,7 +355,10 @@ export default function FrontPage() {
                     </Typography>
 
                     {post.type === "image" && post.image && (
-                      <AspectRatio ratio="16/9" sx={{ mt: 1.5, borderRadius: "md", overflow: "hidden" }}>
+                      <AspectRatio
+                        ratio="16/9"
+                        sx={{ mt: 1.5, borderRadius: "md", overflow: "hidden" }}
+                      >
                         <img src={post.image} alt={post.title} />
                       </AspectRatio>
                     )}
@@ -359,32 +369,46 @@ export default function FrontPage() {
                     direction="row"
                     spacing={2}
                     alignItems="center"
-                    sx={{ mt: 1.5, pt: 1, borderTop: "1px solid", borderColor: "divider" }}
+                    sx={{
+                      mt: 1.5,
+                      pt: 1,
+                      borderTop: "1px solid",
+                      borderColor: "divider",
+                    }}
                   >
                     <Stack direction="row" spacing={0.5} alignItems="center">
                       <IconButton
                         size="sm"
                         variant={liked ? "soft" : "plain"}
                         color={liked ? "primary" : "neutral"}
-                        onClick={(e) => { e.stopPropagation(); toggleLike(post); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLike(post);
+                        }}
                       >
                         {liked ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />}
                       </IconButton>
-                      <Typography level="body-sm">{post.likes?.length || 0}</Typography>
+                      <Typography level="body-sm">
+                        {post.likes?.length || 0}
+                      </Typography>
                     </Stack>
 
                     <Stack direction="row" spacing={0.5} alignItems="center">
                       <IconButton
                         size="sm"
                         variant="plain"
-                        onClick={(e) => { e.stopPropagation(); navigate(`/post/${post.id}`); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/post/${post.id}`);
+                        }}
                       >
                         <ChatBubbleOutlineIcon />
                       </IconButton>
-                      <Typography level="body-sm">{getCommentsCount(post.id)}</Typography>
+                      <Typography level="body-sm">
+                        {getCommentsCount(post.id)}
+                      </Typography>
                     </Stack>
                   </Stack>
-
                 </CardContent>
               </Card>
             );
@@ -429,13 +453,22 @@ export default function FrontPage() {
               >
                 <Avatar
                   size="sm"
-                  sx={{ bgcolor: c.color || "#0d9488", color: "#fff", fontWeight: 700, fontSize: 12 }}
+                  sx={{
+                    bgcolor: c.color || "#0d9488",
+                    color: "#fff",
+                    fontWeight: 700,
+                    fontSize: 12,
+                  }}
                 >
                   {c.name?.charAt(0)}
                 </Avatar>
                 <Stack spacing={0}>
-                  <Typography level="body-sm" fontWeight={600}>{c.name}</Typography>
-                  <Typography level="body-xs" textColor="neutral.400">{c.code}</Typography>
+                  <Typography level="body-sm" fontWeight={600}>
+                    {c.name}
+                  </Typography>
+                  <Typography level="body-xs" textColor="neutral.400">
+                    {c.code}
+                  </Typography>
                 </Stack>
               </Sheet>
             ))}
@@ -459,25 +492,42 @@ export default function FrontPage() {
       </Stack>
 
       {/* MODAL */}
-      <Modal open={openCommunityModal} onClose={() => setOpenCommunityModal(false)}>
+      <Modal
+        open={openCommunityModal}
+        onClose={() => setOpenCommunityModal(false)}
+      >
         <ModalDialog sx={{ width: 600, maxWidth: "95vw" }}>
           <Typography level="h4">Criar comunidade</Typography>
           <Stack spacing={2} mt={1}>
             <FormControl>
               <FormLabel>Nome</FormLabel>
-              <Input value={communityName} onChange={(e) => setCommunityName(e.target.value)} />
+              <Input
+                value={communityName}
+                onChange={(e) => setCommunityName(e.target.value)}
+              />
             </FormControl>
             <FormControl>
               <FormLabel>Código</FormLabel>
-              <Input placeholder="CS101" value={communityCode} onChange={(e) => setCommunityCode(e.target.value)} />
+              <Input
+                placeholder="CS101"
+                value={communityCode}
+                onChange={(e) => setCommunityCode(e.target.value)}
+              />
             </FormControl>
             <FormControl>
               <FormLabel>Professor</FormLabel>
-              <Input value={communityProfessor} onChange={(e) => setCommunityProfessor(e.target.value)} />
+              <Input
+                value={communityProfessor}
+                onChange={(e) => setCommunityProfessor(e.target.value)}
+              />
             </FormControl>
             <FormControl>
               <FormLabel>Descrição</FormLabel>
-              <Textarea minRows={3} value={communityDescription} onChange={(e) => setCommunityDescription(e.target.value)} />
+              <Textarea
+                minRows={3}
+                value={communityDescription}
+                onChange={(e) => setCommunityDescription(e.target.value)}
+              />
             </FormControl>
             <FormControl>
               <FormLabel>Cor da comunidade</FormLabel>
@@ -487,10 +537,15 @@ export default function FrontPage() {
                     key={color}
                     onClick={() => setCommunityColor(color)}
                     sx={{
-                      width: 32, height: 32, borderRadius: "50%", bgcolor: color,
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      bgcolor: color,
                       cursor: "pointer",
-                      border: communityColor === color ? "3px solid white" : "none",
-                      boxShadow: communityColor === color ? "0 0 0 2px black" : "sm",
+                      border:
+                        communityColor === color ? "3px solid white" : "none",
+                      boxShadow:
+                        communityColor === color ? "0 0 0 2px black" : "sm",
                     }}
                   />
                 ))}
@@ -505,7 +560,6 @@ export default function FrontPage() {
           </Stack>
         </ModalDialog>
       </Modal>
-
     </Sheet>
   );
 }
