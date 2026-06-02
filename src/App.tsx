@@ -1,4 +1,4 @@
-import { CssVarsProvider } from "@mui/joy/styles";
+import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -13,14 +13,20 @@ const queryClient = new QueryClient({
   },
 });
 
+const theme = extendTheme({
+  fontFamily: {
+    body: "'Montserrat', sans-serif",
+    display: "'Montserrat', sans-serif",
+  },
+});
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <CssVarsProvider defaultMode="light">
+      <CssVarsProvider defaultMode="light" theme={theme}> {}
         <CssBaseline />
         <Router />
       </CssVarsProvider>
     </QueryClientProvider>
   );
 }
-
